@@ -8,6 +8,10 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/api/quote', async (req, res) => {
   try {
     const message = await client.messages.create({
@@ -25,6 +29,6 @@ app.get('/api/quote', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`NAOVERSE running at http://localhost:${PORT}`);
 });
