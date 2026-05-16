@@ -8,10 +8,6 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 app.get('/api/quote', async (req, res) => {
   try {
     const message = await client.messages.create({
@@ -37,8 +33,14 @@ NAOの口調：
     res.json({ quote });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to generate quote.' });
+    const status = err.status ?? 500;
+    const message = err.message ?? 'Unknown error';
+    res.status(status).json({ error: message });
   }
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;

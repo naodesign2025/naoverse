@@ -213,10 +213,12 @@
         if (data.quote) {
           quoteEl.textContent = data.quote;
         } else {
-          quoteEl.textContent = 'エラーが発生しました。もう一度お試しください。';
+          quoteEl.textContent = `[Error ${res.status}] ${data.error ?? 'Unknown error'}`;
+          quoteEl.classList.add('placeholder');
         }
       } catch (err) {
-        quoteEl.textContent = 'エラーが発生しました。もう一度お試しください。';
+        quoteEl.textContent = `[Network Error] ${err.message}`;
+        quoteEl.classList.add('placeholder');
       } finally {
         quoteEl.classList.remove('loading');
         spinner.classList.remove('active');
