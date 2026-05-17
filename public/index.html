@@ -197,7 +197,43 @@
   </div>
 
   <script>
+    const STORAGE_KEY = 'naoverse_last_date';
+    const QUOTE_KEY = 'naoverse_last_quote';
+
+    function todayStr() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function hasGeneratedToday() {
+      return localStorage.getItem(STORAGE_KEY) === todayStr();
+    }
+
+    function showTomorrowMessage() {
+      const btn = document.getElementById('generate-btn');
+      const quoteEl = document.getElementById('quote-text');
+      quoteEl.classList.remove('placeholder', 'loading');
+      quoteEl.textContent = 'また明日ね。';
+      btn.disabled = true;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (hasGeneratedToday()) {
+        const saved = localStorage.getItem(QUOTE_KEY);
+        const quoteEl = document.getElementById('quote-text');
+        if (saved) {
+          quoteEl.classList.remove('placeholder');
+          quoteEl.textContent = saved;
+        }
+        document.getElementById('generate-btn').disabled = true;
+      }
+    });
+
     async function generateQuote() {
+      if (hasGeneratedToday()) {
+        showTomorrowMessage();
+        return;
+      }
+
       const btn = document.getElementById('generate-btn');
       const quoteEl = document.getElementById('quote-text');
       const spinner = document.getElementById('spinner');
@@ -212,17 +248,20 @@
         const data = await res.json();
         if (data.quote) {
           quoteEl.textContent = data.quote;
+          localStorage.setItem(STORAGE_KEY, todayStr());
+          localStorage.setItem(QUOTE_KEY, data.quote);
         } else {
           quoteEl.textContent = `[Error ${res.status}] ${data.error ?? 'Unknown error'}`;
           quoteEl.classList.add('placeholder');
+          btn.disabled = false;
         }
       } catch (err) {
         quoteEl.textContent = `[Network Error] ${err.message}`;
         quoteEl.classList.add('placeholder');
+        btn.disabled = false;
       } finally {
         quoteEl.classList.remove('loading');
         spinner.classList.remove('active');
-        btn.disabled = false;
       }
     }
   </script>
